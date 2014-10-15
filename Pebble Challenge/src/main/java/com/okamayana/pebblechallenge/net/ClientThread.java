@@ -42,7 +42,7 @@ public class ClientThread extends Thread {
 
             InputStream socketStream = mSocket.getInputStream();
 
-            while (mIsRunning && mSocket.isConnected()) {
+            while (mIsRunning) {
                 byte[] data = new byte[7];
                 socketStream.read(data);
 
@@ -57,16 +57,11 @@ public class ClientThread extends Thread {
             }
 
             socketStream.close();
+            mSocket.close();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (SocketTimeoutException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            mSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,6 +70,14 @@ public class ClientThread extends Thread {
     public void disconnect() {
         if (mIsRunning) {
             mIsRunning = false;
+        }
+
+        if (mSocket != null) {
+            try {
+                mSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
