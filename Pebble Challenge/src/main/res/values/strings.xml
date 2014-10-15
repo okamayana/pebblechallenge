@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Pebble Challenge</string>
+    <string name="title_activity_main">Pebble Challenge</string>
+    <string name="title_dialog_connect">Connect to server</string>
+    <string name="command_absolute">Absolute command</string>
+    <string name="command_relative">Relative command</string>
+    <string name="server_ip">Server IP address</string>
+    <string name="server_port">Server port number</string>
+    <string name="default_port">1234</string>
+    <string name="connect">Connect</string>
+    <string name="cancel">Cancel</string>
+
+</resources>
