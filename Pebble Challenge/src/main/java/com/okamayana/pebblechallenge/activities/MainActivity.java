@@ -67,7 +67,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
     }
 
     public void connect(String serverIp, int serverPort) {
-        mClientThread = new ClientThread(serverIp, serverPort, mHandler);
+        mClientThread = new ClientThread(serverIp, serverPort, mHandler, MainActivity.this);
         mClientThread.start();
         saveServer(serverIp);
     }
@@ -81,7 +81,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
     protected void onResume() {
         super.onResume();
         if (mClientThread != null && !mClientThread.isRunning()) {
-            Log.d("Activity", "Starting ClientThread...");
             mClientThread.start();
         }
     }

@@ -1,13 +1,14 @@
 package com.okamayana.pebblechallenge.net;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -18,13 +19,16 @@ public class ClientThread extends Thread {
     public static final int TIMEOUT = 5000; // 5 sec timeout
     public static final String KEY_MESSAGE = "message";
 
+    private Activity mActivity;
+
     private Handler mHandler;
     private Socket mSocket;
     private InetSocketAddress mServerAddress;
 
     private boolean mIsRunning = false;
 
-    public ClientThread(String serverIp, int serverPort, Handler handler) {
+    public ClientThread(String serverIp, int serverPort, Handler handler, Activity activity) {
+        mActivity = activity;
         mServerAddress = new InetSocketAddress(serverIp, serverPort);
         mHandler = handler;
         mSocket = new Socket();
@@ -42,8 +46,8 @@ public class ClientThread extends Thread {
 
             InputStream socketStream = mSocket.getInputStream();
 
+            byte[] data = new byte[7];
             while (mIsRunning) {
-                byte[] data = new byte[7];
                 socketStream.read(data);
 
                 if (data[0] == 0x01 || data[0] == 0x02) {
@@ -62,6 +66,9 @@ public class ClientThread extends Thread {
             e.printStackTrace();
         } catch (SocketTimeoutException e) {
             e.printStackTrace();
+        } catch (ConnectException e) {
+            showErrorToast(e);
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -79,6 +86,15 @@ public class ClientThread extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void showErrorToast(final ConnectException e) {
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mActivity, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public boolean isRunning() {
