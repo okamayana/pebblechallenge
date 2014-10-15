@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
