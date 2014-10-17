@@ -24,6 +24,7 @@ import com.okamayana.pebblechallenge.models.Command;
 import com.okamayana.pebblechallenge.models.Command.CommandType;
 import com.okamayana.pebblechallenge.net.ClientThread;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +48,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
     private List<Command> mCommandsList = new ArrayList<Command>();
 
     private ClientThread mClientThread;
+    private final Handler mHandler = new ClientHandler(MainActivity.this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,35 +156,29 @@ public class MainActivity extends Activity implements OnItemClickListener {
         return new Command(CommandType.RELATIVE, red, green, blue);
     }
 
-    private Handler mHandler = new Handler() {
+    public void handleMessage(Message msg) {
+        if (msg != null) {
+            byte[] message = msg.getData().getByteArray(ClientThread.KEY_MESSAGE);
+            byte messageType = message[0];
 
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-
-            if (msg != null) {
-                byte[] message = msg.getData().getByteArray(ClientThread.KEY_MESSAGE);
-                byte messageType = message[0];
-
-                Command command = null;
-                if (messageType == COMMAND_ABSOLUTE) {
-                    command = buildAbsoluteCommand(message);
-                    updateAbsoluteCanvasColor(command);
-                } else if (messageType == COMMAND_RELATIVE) {
-                    command = buildRelativeCommand(message);
-                    updateRelativeCanvasColor(command, false);
-                }
-
-                if (command.getCommandType() == CommandType.ABSOLUTE) {
-                    mAdapter.uncheckAllItems();
-                }
-
-                mCommandsList.add(command);
-                mAdapter.setItems(mCommandsList);
-                mAdapter.notifyDataSetChanged();
+            Command command = null;
+            if (messageType == COMMAND_ABSOLUTE) {
+                command = buildAbsoluteCommand(message);
+                updateAbsoluteCanvasColor(command);
+            } else if (messageType == COMMAND_RELATIVE) {
+                command = buildRelativeCommand(message);
+                updateRelativeCanvasColor(command, false);
             }
+
+            if (command.getCommandType() == CommandType.ABSOLUTE) {
+                mAdapter.uncheckAllItems();
+            }
+
+            mCommandsList.add(command);
+            mAdapter.setItems(mCommandsList);
+            mAdapter.notifyDataSetChanged();
         }
-    };
+    }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -217,5 +213,23 @@ public class MainActivity extends Activity implements OnItemClickListener {
 
     private int concatenateBytes(byte msb, byte lsb) {
         return (msb << 8) | (lsb & 0xFF);
+    }
+
+    static class ClientHandler extends Handler {
+
+        private final WeakReference<MainActivity> mActivity;
+
+        private ClientHandler(MainActivity activity) {
+            mActivity = new WeakReference<MainActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity activity = mActivity.get();
+
+            if (activity != null && msg != null) {
+                activity.handleMessage(msg);
+            }
+        }
     }
 }
