@@ -12,7 +12,7 @@ The color of the interface is represented by 3x 8-bit values, R, G and B.
 The connecting client is supposed to keep state of the current color. Upon connect, the color should be reset to (127, 127, 127).
 There are 2 command types, relative and absolute.
 
-## Relative
+### Relative
 
 The relative command, changes the components with a relative offset.
 The message has this structure:
@@ -26,7 +26,7 @@ The offset fields are 16-bit for future purposes.
 Upon receiving a "relative" command, the client is supposed to offset the current components with the given offsets.
 
 
-## Absolute
+### Absolute
 
 The absolute command, changes the components to the specified absolute values.
 The message has this structure:
